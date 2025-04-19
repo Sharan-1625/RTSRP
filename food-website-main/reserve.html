@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table Reservation</title>
+    <link rel="stylesheet" href="style1.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        Table Reservation System
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Book Your Table Now</h1>
+        <p>Plan your dining experience with ease.</p>
+        <a href="#reservation" class="btn">Reserve Now</a>
+    </section>
+
+    <!-- Reservation Form -->
+    <section id="reservation" class="section">
+        <div class="reservation-container">
+            <h2>Reserve Your Table</h2>
+            <form class="reservation-form" id="reservationForm">
+                <label for="name">Name:</label>
+                <input type="text" id="name" required>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" required>
+
+                <label for="phone">Phone:</label>
+                <input type="tel" id="phone" required>
+
+                <label for="date">Date:</label>
+                <input type="date" id="date" required>
+
+                <label for="time">Time:</label>
+                <input type="time" id="time" required>
+
+                <label for="people">Number of People:</label>
+                <select id="people" required>
+                    <option value="1">1 Person</option>
+                    <option value="2">2 People</option>
+                    <option value="3">3 People</option>
+                    <option value="4">4 People</option>
+                    <option value="5">5 People</option>
+                    <option value="6">6+ People</option>
+                </select>
+
+                <button type="submit">Reserve Table</button>
+            </form>
+        </div>
+    </section>
+
+
+    <!-- Footer -->
+    <footer>
+        &copy; 2025 Restaurant Name. All Rights Reserved.
+    </footer>
+
+    <!-- JavaScript to Handle Reservations -->
+    <script>
+        document.getElementById("reservationForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            
+            // Get form values
+            let name = document.getElementById("name").value;
+            let email = document.getElementById("email").value;
+            let phone = document.getElementById("phone").value;
+            let date = document.getElementById("date").value;
+            let time = document.getElementById("time").value;
+            let people = document.getElementById("people").value;
+
+            // Create a new row
+            let table = document.getElementById("reservationList");
+            let newRow = table.insertRow();
+            newRow
+        });
