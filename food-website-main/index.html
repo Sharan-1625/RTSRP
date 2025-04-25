@@ -19,7 +19,6 @@
     <link rel="stylesheet" href="style.css">
     
 </head>
-
 <body class="body-fixed">
     <!-- start of header  -->
     <header class="site-header">
@@ -48,17 +47,13 @@
                             </ul>
                         </nav>
                         <div class="header-right">
-                            <form action="#" class="header-search-form for-des">
-                                <input type="search" class="form-input" placeholder="Search Here...">
-                                <button type="submit">
+                            <div class="header-search-form for-des">
+                                <input type="text" id="searchInput"  placeholder="Search Here...">
+                                <button type="button" onclick="searchDish()"></button>
                                     <i class="uil uil-search"></i>
                                 </button>
-                            </form>
-                            <a href="javascript:void(0)" class="header-btn header-cart">
-                                <i class="uil uil-shopping-bag"></i>
-                                <span class="cart-number">3</span>
-                            </a>
-                            <a href="javascript:void(0)" class="header-btn">
+                            </div>
+                            <a href="signup.html" class="header-btn">
                                 <i class="uil uil-user-md"></i>
                             </a>
                         </div>
@@ -1166,6 +1161,33 @@
     <script src="assets/js/smooth-scroll.js"></script>
     <!-- custom js  -->
     <script src="main.js"></script>
+    <script>
+        function searchDish() {
+          const input = document.getElementById("searchInput").value.toLowerCase();
+          const dishes = document.querySelectorAll(".dish-box");
+      
+          let found = false;
+      
+          dishes.forEach(dish => {
+            dish.classList.remove("highlight");
+            const titleElement = dish.querySelector(".h3-title");
+            if (!titleElement) return;
+      
+            const title = titleElement.textContent.toLowerCase();
+      
+            if (title.includes(input)) {
+              dish.scrollIntoView({ behavior: "smooth", block: "center" });
+              dish.classList.add("highlight");
+              found = true;
+            }
+          });
+      
+          if (!found) {
+            alert("Dish not found!");
+          }
+        }
+      </script>
+      
 
 </body>
 
