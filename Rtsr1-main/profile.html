@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Table Reservation</title>
+  <style>
+    .reservation { margin-bottom: 10px; }
+    .cancel-button { color: red; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>Table Reservation System</h1>
+
+  <div id="reservation-form">
+    <label for="reservation-time">Select Time:</label>
+    <input type="datetime-local" id="reservation-time">
+    <button onclick="makeReservation()">Make Reservation</button>
+  </div>
+
+  <h2>Your Reservations</h2>
+  <div id="active-reservations"></div>
+
+  <h2>Reservation History</h2>
+  <div id="history"></div>
+
+  <script>
+    const activeReservations = [];
+    const history = [];
+
+
+    // Make a reservation
+    function makeReservation() {
+      const input = document.getElementById("reservation-time");
+      const selectedTime = new Date(input.value);
+
+    
+
+      // Add reservation to active list
+      const reservation = { time: selectedTime.toLocaleString(), id: Date.now() };
+      activeReservations.push(reservation);
+      renderReservations();
+    }
+
+    // Cancel a reservation
+    function cancelReservation(id) {
+      const index = activeReservations.findIndex(res => res.id === id);
+      if (index !== -1) {
+        const [cancelledReservation] = activeReservations.splice(index, 1);
+        history.push(cancelledReservation);
+        renderReservations();
+      }
+    }
+
+    // Render active reservations
+    function renderReservations() {
+      const activeReservationsDiv = document.getElementById("active-reservations");
+      activeReservationsDiv.innerHTML = "";
+      activeReservations.forEach(reservation => {
+        const div = document.createElement("div");
+        div.className = "reservation";
+        div.innerHTML = `
+          ${reservation.time} <span class="cancel-button" onclick="cancelReservation(${reservation.id})">Cancel</span>
+        `;
+        activeReservationsDiv.appendChild(div);
+      });
+
+      // Render reservation history
+      const historyDiv = document.getElementById("history");
+      historyDiv.innerHTML = "";
+      history.forEach(reservation => {
+        const div = document.createElement("div");
+        div.className = "reservation";
+        div.innerHTML = reservation.time;
+        historyDiv.appendChild(div);
+      });
+    }
+
+    // Initial render of reservations
+    renderReservations();
+  </script>
+</body>
+</html>

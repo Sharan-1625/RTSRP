@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="style1.css">
+</head>
+<body>
+   <header>Admin Dashboard</header>
+
+  <div class="section">
+    <h2>Reservation Details</h2>
+    
+    <!-- Filters -->
+  <!-- Filter Row Aligned with Table -->
+<table>
+  <thead>
+    <tr>
+      <th><input type="text" id="filterName" placeholder="Filter by Name" class="filter-input"></th>
+      <th><input type="text" id="filterEmail" placeholder="Filter by Email" class="filter-input"></th>
+      <th><input type="text" id="filterPhone" placeholder="Filter by Phone" class="filter-input"></th>
+      <th></th>
+      <th><input type="text" id="filterStatus" placeholder="Filter by Status" class="filter-input"></th>
+    </tr>
+  </thead>
+</table>
+
+
+    <!-- Table -->
+    <table id="reservationTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Seats</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    // Admin auth check
+    if (localStorage.getItem("adminLoggedIn") !== "true") {
+      window.location.href = "admin-login.html";
+    }
+
+    const tbody = document.querySelector("#reservationTable tbody");
+    const filters = {
+      name: document.getElementById("filterName"),
+      email: document.getElementById("filterEmail"),
+      phone: document.getElementById("filterPhone"),
+      status: document.getElementById("filterStatus")
+    };
+
+    // Load data
+    const reservations = JSON.parse(localStorage.getItem("reservations")) || [];
+
+    // Render
+    function renderTable(data) {
+      tbody.innerHTML = "";
+      data.forEach(r => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td> ${r.name}</td>
+          <td> ${r.email}</td>
+          <td>${r.phone}</td>
+          <td>${r.seats || r.people}</td>
+          <td>${r.date}</td>
+          <td>${r.time}</td>
+          <td> ${r.status || "Success"}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // Filter
+    function filterReservations() {
+      const filtered = reservations.filter(r =>
+        (!filters.name.value || r.name.toLowerCase().includes(filters.name.value.toLowerCase())) &&
+        (!filters.email.value || r.email.toLowerCase().includes(filters.email.value.toLowerCase())) &&
+        (!filters.phone.value || r.phone.includes(filters.phone.value)) &&
+        (!filters.status.value || (r.status || "Success").toLowerCase().includes(filters.status.value.toLowerCase()))
+      );
+      renderTable(filtered);
+    }
+
+    Object.values(filters).forEach(input => input.addEventListener("input", filterReservations));
+
+    renderTable(reservations);
+  </script>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table Reservation</title>
+    <link rel="stylesheet" href="style1.css">
+    <style>
+      .reservation { margin-bottom: 10px; }
+      .cancel-button { color: red; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <button onclick="flushReservations()">Flush Reservations</button>
+
+    <script>
+    function flushReservations() {
+        if (confirm("Are you sure you want to clear all reservations?")) {
+            localStorage.removeItem("reservations");
+            alert("All reservations cleared!");
+            location.reload(); // reload the page to refresh the view
+        }
+    }
+    </script>
+    
+    <!-- Header -->
+    <header>
+        Table Reservation System
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Book Your Table Now</h1>
+        <p>Plan your dining experience with ease.</p>
+        <a href="#reservation" class="btn">Reserve Now</a>
+    </section>
+
+    <!-- Reservation Form -->
+    <section id="reservation" class="section">
+        <div class="reservation-container">
+            <h2>Reserve Your Table</h2>
+            <form class="reservation-form" id="reservationForm">
+                <label for="name">Name:</label>
+                <input type="text" id="name" required>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" required>
+
+                <label for="phone">Phone:</label>
+                <input type="tel" id="phone" required>
+
+                <label for="date">Date:</label>
+                <input type="date" id="date" required>
+
+                <label for="time">Time:</label>
+                <input type="time" id="time" required>
+
+                <label for="people">Number of People:</label>
+                <select id="people" required>
+                    <option value="1">1 Person</option>
+                    <option value="2">2 People</option>
+                    <option value="3">3 People</option>
+                    <option value="4">4 People</option>
+                    <option value="5">5 People</option>
+                    <option value="6">6+ People</option>
+                </select>
+
+                <button type="submit">Reserve Table</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Active Reservations Section -->
+    <h2>Your Reservations</h2>
+    <div id="active-reservations"></div>
+
+    <!-- Reservation History Section -->
+    <h2>Reservation History</h2>
+    <div id="history"></div>
+
+    <!-- Footer -->
+    <footer>
+        &copy; 2025 DineNDelight. All Rights Reserved.
+    </footer>
+
+    <!-- JavaScript to Handle Reservations -->
+    <script>
+        // Event listener for form submission
+        document.getElementById("reservationForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            
+            // Get form values
+            let name = document.getElementById("name").value;
+            let email = document.getElementById("email").value;
+            let phone = document.getElementById("phone").value;
+            let date = document.getElementById("date").value;
+            let time = document.getElementById("time").value;
+            let people = document.getElementById("people").value;
+        
+            // Validate date selection (only allow today or upcoming days)
+            let today = new Date();
+            let selectedDate = new Date(date);
+        
+            if (selectedDate < today) {
+                alert("You can only select today or upcoming dates.");
+                return;
+            }
+        
+            // Get the day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+            let dayOfWeek = selectedDate.getDay();
+            
+            // Validate time selection based on the selected day
+            let validTime = false;
+        
+            if (dayOfWeek >= 1 && dayOfWeek <= 4) {
+                // Monday to Thursday: 9:00 AM - 9:00 PM
+                if (time >= "09:00" && time <= "21:00") {
+                    validTime = true;
+                }
+            } else if (dayOfWeek === 0 || dayOfWeek === 5 || dayOfWeek === 6) {
+                // Friday to Sunday: 11:00 AM - 9:00 PM
+                if (time >= "11:00" && time <= "21:00") {
+                    validTime = true;
+                }
+            }
+        
+            if (!validTime) {
+                alert("The selected time is not available for the chosen day.");
+                return;
+            }
+        
+            // Create reservation object
+            let reservation = {
+                name: name,
+                email: email,
+                phone: phone,
+                date: date,
+                time: time,
+                people: people,
+                status: "Confirmed"  // Status of the reservation (could be Cancelled later)
+                
+            };
+        
+            // Get existing reservations from localStorage (if any)
+            let reservations = JSON.parse(localStorage.getItem("reservations")) || [];
+        
+            // Add the new reservation
+            reservations.push(reservation);
+            
+            // ✨ Check if more than 5 reservations for the current user
+let userReservations = reservations.filter(r => r.email === email); // matching by email or username
+
+if (userReservations.length > 5) {
+    // Find the oldest reservation for this user
+    let oldestReservationIndex = reservations.findIndex(r => r.email === email);
+
+    if (oldestReservationIndex !== -1) {
+        reservations.splice(oldestReservationIndex, 1); // Remove the oldest one
+        alert("You had more than 5 reservations. Oldest one was removed automatically!");
+    }
+}
+            // Save the updated reservations back to localStorage
+            localStorage.setItem("reservations", JSON.stringify(reservations));
+            alert("Reservation Successful");
+
+            // Update reservation section
+            renderReservations();
+        });
+        
+        // Ensure date input allows only today or upcoming dates
+        document.getElementById("date").setAttribute("min", (function() {
+            let today = new Date();
+            let dd = today.getDate();
+            let mm = today.getMonth() + 1; // January is 0!
+            let yyyy = today.getFullYear();
+            if (dd < 10) {
+                dd = '0' + dd;
+            } 
+            if (mm < 10) {
+                mm = '0' + mm;
+            } 
+            return yyyy + '-' + mm + '-' + dd;
+        })());
+
+        // Render reservations from localStorage (both active and history)
+        function renderReservations() {
+            // Fetch reservations from localStorage
+            let reservations = JSON.parse(localStorage.getItem("reservations")) || [];
+
+            // Separate active reservations and history
+            let activeReservations = reservations.filter(reservation => reservation.status === "Confirmed");
+            let history = reservations.filter(reservation => reservation.status === "Cancelled");
+
+            // Render active reservations
+            const activeReservationsDiv = document.getElementById("active-reservations");
+            activeReservationsDiv.innerHTML = "";
+            activeReservations.forEach(reservation => {
+                const div = document.createElement("div");
+                div.className = "reservation";
+                div.innerHTML = `
+                    ${reservation.date} ${reservation.time} - ${reservation.name} 
+                    <span class="cancel-button" onclick="cancelReservation('${reservation.date}', '${reservation.time}')">Cancel</span>
+                `;
+                activeReservationsDiv.appendChild(div);
+            });
+
+            // Render reservation history
+            const historyDiv = document.getElementById("history");
+            historyDiv.innerHTML = "";
+            history.forEach(reservation => {
+                const div = document.createElement("div");
+                div.className = "reservation";
+                div.innerHTML = `
+                    ${reservation.date} ${reservation.time} - ${reservation.name} (Cancelled)
+                `;
+                historyDiv.appendChild(div);
+            });
+        }
+
+        // Cancel a reservation
+        function cancelReservation(date, time) {
+            // Fetch reservations from localStorage
+            let reservations = JSON.parse(localStorage.getItem("reservations")) || [];
+
+            // Find the reservation to cancel
+            let reservation = reservations.find(res => res.date === date && res.time === time);
+            if (reservation) {
+                reservation.status = "Cancelled";
+                localStorage.setItem("reservations", JSON.stringify(reservations));
+                alert("Reservation Cancelled Successfully");
+                renderReservations(); // Re-render reservations
+            }
+        }
+
+        // Initial render of reservations
+        renderReservations();
+    </script>
+
+</body>
+</html>
